@@ -13,6 +13,8 @@ cd $BASEDIR && \
   && nice ./dune-common/bin/dunecontrol --opts=$CONFIG_OPTS_FILE --only=dune-geometry all \
   && nice ./dune-common/bin/dunecontrol --opts=$CONFIG_OPTS_FILE --only=dune-grid all \
   && nice ./dune-common/bin/dunecontrol --opts=$CONFIG_OPTS_FILE --only=dune-localfunctions all \
+  && nice ./dune-common/bin/dunecontrol --opts=$CONFIG_OPTS_FILE --only=dune-istl all \
+  && nice ./dune-common/bin/dunecontrol --opts=$CONFIG_OPTS_FILE --only=dune-pdelab all \
   && nice ./dune-common/bin/dunecontrol --opts=$CONFIG_OPTS_FILE --only=dune-fem all \
   && nice ./dune-common/bin/dunecontrol --opts=$CONFIG_OPTS_FILE --only=dune-stuff all \
   && nice ./dune-common/bin/dunecontrol --opts=$CONFIG_OPTS_FILE --only=dune-grid-multiscale all \
