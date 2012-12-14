@@ -28,3 +28,6 @@
 [submodule "dune-localfunctions"]
 	path = dune-localfunctions
 	url = http://users.dune-project.org/repositories/projects/dune-localfunctions.git
+[submodule "dune-istl"]
+	path = dune-istl
+	url = http://users.dune-project.org/repositories/projects/dune-istl.git
