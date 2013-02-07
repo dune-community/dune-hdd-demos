@@ -12,7 +12,7 @@
 	url = http://users.dune-project.org/repositories/projects/dune-fem.git
 [submodule "dune-pdelab"]
 	path = dune-pdelab
-	url = http://users.dune-project.org/repositories/projects/dune-pdelab.git
+	url = http://users.dune-project.org/repositories/projects/dune-pdelab-unofficial.git
 [submodule "dune-stuff"]
 	path = dune-stuff
 	url = http://users.dune-project.org/repositories/projects/dune-stuff.git
