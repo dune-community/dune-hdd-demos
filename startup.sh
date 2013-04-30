@@ -12,7 +12,7 @@ else
 fi
 
 if [ "X$CC" == "X" ] ; then
-  export CC=gcc-4.6
+  export CC=gcc
   echo "CC not set, defaulting to CC=$CC"
   echo "(set CC to one of the config.opts.??? postfixes)"
 fi
