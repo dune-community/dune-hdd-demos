@@ -19,9 +19,6 @@
 [submodule "dune-grid-multiscale"]
 	path = dune-grid-multiscale
 	url = http://users.dune-project.org/repositories/projects/dune-grid-multiscale.git
-[submodule "dune-detailed-solvers"]
-	path = dune-detailed-solvers
-	url = http://users.dune-project.org/repositories/projects/dune-detailed-solvers.git
 [submodule "dune-localfunctions"]
 	path = dune-localfunctions
 	url = http://git.dune-project.org/repositories/dune-localfunctions
@@ -37,3 +34,6 @@
 [submodule "dune-gdt"]
 	path = dune-gdt
 	url = http://users.dune-project.org/repositories/projects/dune-gdt.git
+[submodule "dune-hdd"]
+	path = dune-hdd
+	url = http://users.dune-project.org/repositories/projects/dune-hdd.git
