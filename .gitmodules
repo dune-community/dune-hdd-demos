@@ -36,7 +36,7 @@
 	url = http://users.dune-project.org/repositories/projects/dune-gdt.git
 [submodule "dune-hdd"]
 	path = dune-hdd
-	url = http://users.dune-project.org/repositories/projects/dune-hdd.git
+	url = http://users.dune-project.org/repositories/projects/dune-hdd-private.git
 [submodule "dune-pymor"]
 	path = dune-pymor
 	url = https://github.com/pyMor/dune-pymor.git
