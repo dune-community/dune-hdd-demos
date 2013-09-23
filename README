@@ -37,8 +37,13 @@ to be set correctly.
 If your system has all dependencies installed you can now build everything by
 calling:
 
-    ./local/bin/startup.sh
+    ./local/bin/download_external_libraries.py
+    ./local/bin/build_external_libraries.py
+    ./local/bin/build_dune_modules.py
+    ./local/bin/build_demos.py
 
-This process can take several minutes (up to hours, depending on your system)
-and should present you with details on how to run the demos, once it is
-finished.
+This process can take several minutes (or up to hours, depending on your
+system) and should present you with details on how to run the demos, once it
+is finished. Please be aware that `build_external_libraries` will call the
+`install.py` script of pyMor which will ask you for root privileges to
+install necessary system packages.
