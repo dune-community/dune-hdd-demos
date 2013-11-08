@@ -36,4 +36,4 @@
 	url = https://github.com/pyMor/dune-pymor.git
 [submodule "pyMor"]
 	path = pyMor
-	url = http://dune-project.uni-muenster.de/repos/projects/pymor-private-felix.git
+	url = https://github.com/pyMor/pyMor.git
