@@ -1,45 +1,52 @@
 [submodule "dune-common"]
 	path = dune-common
 	url = http://git.dune-project.org/repositories/dune-common
-  ignore = dirty
+        ignore = dirty
 [submodule "dune-grid"]
 	path = dune-grid
 	url = http://git.dune-project.org/repositories/dune-grid
-  ignore = dirty
+        ignore = dirty
 [submodule "dune-geometry"]
 	path = dune-geometry
 	url = http://git.dune-project.org/repositories/dune-geometry
-  ignore = dirty
+        ignore = dirty
 [submodule "dune-fem"]
 	path = dune-fem
 	url = http://users.dune-project.org/repositories/projects/dune-fem-unofficial.git
-  ignore = dirty
+        ignore = dirty
 [submodule "dune-stuff"]
 	path = dune-stuff
 	url = http://users.dune-project.org/repositories/projects/dune-stuff.git
+        ignore = dirty
 [submodule "dune-grid-multiscale"]
 	path = dune-grid-multiscale
 	url = http://users.dune-project.org/repositories/projects/dune-grid-multiscale.git
+        ignore = dirty
 [submodule "dune-localfunctions"]
 	path = dune-localfunctions
 	url = http://git.dune-project.org/repositories/dune-localfunctions
-  ignore = dirty
+        ignore = dirty
 [submodule "local/bin"]
 	path = local/bin
 	url = http://users.dune-project.org/repositories/projects/dune-demos-bin.git
+        ignore = dirty
 [submodule "dune-fem-localfunctions"]
 	path = dune-fem-localfunctions
 	url = http://users.dune-project.org/repositories/projects/dune-fem-localfunctions.git
-  ignore = dirty
+        ignore = dirty
 [submodule "dune-gdt"]
 	path = dune-gdt
 	url = http://users.dune-project.org/repositories/projects/dune-gdt.git
+        ignore = dirty
 [submodule "dune-hdd"]
 	path = dune-hdd
 	url = http://users.dune-project.org/repositories/projects/dune-hdd-private.git
+        ignore = dirty
 [submodule "dune-pymor"]
 	path = dune-pymor
 	url = https://github.com/pyMor/dune-pymor.git
+        ignore = dirty
 [submodule "pyMor"]
 	path = pyMor
 	url = https://github.com/pyMor/pyMor.git
+        ignore = dirty
