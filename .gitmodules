@@ -17,11 +17,11 @@
 [submodule "dune-stuff"]
 	path = dune-stuff
 	url = http://users.dune-project.org/repositories/projects/dune-stuff.git
-        ignore = dirty
+        ignore = untracked
 [submodule "dune-grid-multiscale"]
 	path = dune-grid-multiscale
 	url = http://users.dune-project.org/repositories/projects/dune-grid-multiscale.git
-        ignore = dirty
+        ignore = untracked
 [submodule "dune-localfunctions"]
 	path = dune-localfunctions
 	url = http://git.dune-project.org/repositories/dune-localfunctions
@@ -29,24 +29,24 @@
 [submodule "local/bin"]
 	path = local/bin
 	url = http://users.dune-project.org/repositories/projects/dune-demos-bin.git
-        ignore = dirty
+        ignore = untracked
 [submodule "dune-fem-localfunctions"]
 	path = dune-fem-localfunctions
 	url = http://users.dune-project.org/repositories/projects/dune-fem-localfunctions.git
-        ignore = dirty
+        ignore = untracked
 [submodule "dune-gdt"]
 	path = dune-gdt
 	url = http://users.dune-project.org/repositories/projects/dune-gdt.git
-        ignore = dirty
+        ignore = untracked
 [submodule "dune-hdd"]
 	path = dune-hdd
 	url = http://users.dune-project.org/repositories/projects/dune-hdd-private.git
-        ignore = dirty
+        ignore = untracked
 [submodule "dune-pymor"]
 	path = dune-pymor
 	url = https://github.com/pyMor/dune-pymor.git
-        ignore = dirty
+        ignore = untracked
 [submodule "pyMor"]
 	path = pyMor
 	url = https://github.com/pyMor/pyMor.git
-        ignore = dirty
+        ignore = untracked
