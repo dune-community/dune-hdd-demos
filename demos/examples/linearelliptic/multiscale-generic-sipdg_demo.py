@@ -1,1 +1,0 @@
-../../../dune-hdd/examples/linearelliptic/multiscale-generic-sipdg_demo.py
