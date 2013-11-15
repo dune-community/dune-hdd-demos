@@ -25,6 +25,7 @@ config_defaults = {'framework': 'rb',
                    'use_estimator': 'False',
                    'max_rb_size': '100',
                    'target_error': '0.01',
+                   'final_compression': 'False',
                    'test_set': 'training',
                    'num_test_samples': '100',
                    'test_error_norm': 'h1'}
@@ -58,6 +59,7 @@ from pymor.operators import NumpyMatrixOperator
 from pymor.operators.basic import NumpyLincombMatrixOperator
 from pymor.operators.block import BlockOperator
 from pymor.la import NumpyVectorArray
+from pymor.la.pod import pod
 from pymor.la.basic import induced_norm
 from pymor.la.blockvectorarray import BlockVectorArray
 from pymor.discretizations import StationaryDiscretization
@@ -185,7 +187,15 @@ def perform_lrbms(config, multiscale_discretization, training_samples):
                          max_extensions=greedy_max_rb_size,
                          target_error=greedy_target_error)
 
-    rb_size = [len(local_data) for local_data in greedy_data['data']]
+    reduced_basis = greedy_data['data']
+    rb_size = [len(local_data) for local_data in reduced_basis]
+
+    # perform final compression
+    final_compression = config.getboolean('pymor', 'final_compression')
+    if final_compression:
+        reduced_basis = [pod(reduced_basis[ss], product=multiscale_discretization.local_product(ss, 'h1'))
+                         for ss in np.arange(num_subdomains)]
+    compressed_rb_size = [len(local_data) for local_data in reduced_basis]
 
     #report
     report_string = '''
@@ -196,6 +206,8 @@ Greedy basis generation:
     prescribed basis size: {greedy_max_rb_size}
     prescribed error:      {greedy_target_error}
     actual basis size:     {rb_size}
+    final compression:     {final_compression}
+    compressed basis size: {compressed_rb_size}
     elapsed time:          {greedy_data[time]}
 '''.format(**locals())
 
@@ -282,16 +294,21 @@ if __name__ == '__main__':
 
     # load module
     example, wrapper = load_dune_module(args['SETTINGSFILE'])
+    logger.info('The global grid has {} elements ({}).'.format(example.grid_size(), example.type_grid()))
 
     # create global cg discretization
     global_cg_discretization = wrapper[example.global_discretization()]
     global_cg_discretization = global_cg_discretization.with_(
         parameter_space=CubicParameterSpace(global_cg_discretization.parameter_type, 0.1, 10.0))
-    logger.info('the parameter type is {}'.format(global_cg_discretization.parameter_type))
+    logger.info('The global CG-FEM discretization has {} DoFs.'.format(global_cg_discretization.operator.dim_source))
     # create multiscale discretization
     multiscale_discretization = wrapper[example.multiscale_discretization()]
     multiscale_discretization = multiscale_discretization.with_(
         parameter_space=global_cg_discretization.parameter_space)
+    logger.info('The multiscale grid has {} subdomains.'.format(multiscale_discretization._impl.num_subdomains()))
+    logger.info('The global generic-SWIPDG (with local CG-FEM) discretization has {} DoFs.'.format(
+                multiscale_discretization.operator.dim_source))
+    logger.info('The parameter type is {}.'.format(global_cg_discretization.parameter_type))
 
     # create training set
     training_set_sampling_strategy = config.get('pymor', 'training_set')
