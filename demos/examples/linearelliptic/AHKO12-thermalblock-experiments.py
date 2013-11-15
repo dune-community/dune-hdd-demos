@@ -26,6 +26,7 @@ config_defaults = {'framework': 'rb',
                    'max_rb_size': '100',
                    'target_error': '0.01',
                    'final_compression': 'False',
+                   'compression_product': 'None',
                    'test_set': 'training',
                    'num_test_samples': '100',
                    'test_error_norm': 'h1'}
@@ -151,7 +152,14 @@ def perform_lrbms(config, multiscale_discretization, training_samples):
 
     # parse config
     extension_algorithm_product_id = config.get('pymor', 'extension_algorithm_product')
-    assert extension_algorithm_product_id == 'h1'
+    if extension_algorithm_product_id == 'None':
+        extension_algorithm_products = [None for ss in np.arange(num_subdomains)]
+    elif extension_algorithm_product_id == 'h1':
+        extension_algorithm_products = [multiscale_discretization.local_product(ss, 'h1')
+                                        for ss in np.arange(num_subdomains)]
+    else:
+        raise ConfigError('unknown \'pymor.extension_algorithm_product\' given:\'{}\''.format(
+                          extension_algorithm_product_id))
 
     extension_algorithm_id = config.get('pymor', 'extension_algorithm')
     if extension_algorithm_id == 'gram_schmidt':
@@ -163,7 +171,7 @@ def perform_lrbms(config, multiscale_discretization, training_samples):
 
     extension_algorithm = partial(block_basis_extension,
                                   extension_algorithm=[partial(extension_algorithm,
-                                                               product=multiscale_discretization.local_product(ss, extension_algorithm_product_id))
+                                                               product=extension_algorithm_products[ss])
                                                        for ss in np.arange(num_subdomains)])
 
     greedy_error_norm_id = config.get('pymor', 'greedy_error_norm')
@@ -195,8 +203,22 @@ def perform_lrbms(config, multiscale_discretization, training_samples):
     if final_compression:
         t = time.time()
         logger.info('Applying final POD compression:')
+
+        # select local product
+        compression_product_id = config.get('pymor', 'compression_product')
+        if compression_product_id == 'None':
+            compression_products = [None for ss in np.arange(num_subdomains)]
+        elif compression_product_id == 'h1':
+            compression_products = [multiscale_discretization.local_product(ss, 'h1')
+                                            for ss in np.arange(num_subdomains)]
+        else:
+            raise ConfigError('unknown \'pymor.compression_product\' given:\'{}\''.format(
+                              compression_product_id))
+
+        # do the actual work
         reduced_basis = [pod(reduced_basis[ss], product=multiscale_discretization.local_product(ss, 'h1'))
                          for ss in np.arange(num_subdomains)]
+
         time_compression = time.time() - t
         compressed_rb_size = [len(local_data) for local_data in reduced_basis]
 
@@ -210,6 +232,7 @@ Greedy basis generation:
     prescribed error:      {greedy_target_error}
     actual basis size:     {rb_size}
     greedy time:           {greedy_data[time]}
+    compression product:    {compression_product_id}
     compressed basis size:  {compressed_rb_size}
     final compression time: {time_compression}
 '''.format(**locals())
