@@ -84,7 +84,7 @@ def perform_standard_rb(config, detailed_discretization, training_samples):
     # parse config
     reductor_id = config.get('pymor', 'reductor')
     if reductor_id == 'generic':
-        reductor = reduce_generic_rb,
+        reductor = reduce_generic_rb
     elif reductor_id == 'stationary_affine_linear':
         reductor_error_product = config.get('pymor', 'reductor_error_product')
         assert reductor_error_product == 'None'
