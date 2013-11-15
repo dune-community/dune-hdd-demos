@@ -16,8 +16,8 @@ Arguments:
 from __future__ import absolute_import, division, print_function
 
 config_defaults = {'framework': 'rb',
-                   'num_training_samples': '100',
                    'training_set': 'random',
+                   'num_training_samples': '100',
                    'reductor': 'generic',
                    'extension_algorithm': 'gram_schmidt',
                    'extension_algorithm_product': 'h1',
@@ -25,8 +25,8 @@ config_defaults = {'framework': 'rb',
                    'use_estimator': 'False',
                    'max_rb_size': '100',
                    'target_error': '0.01',
-                   'num_test_samples': '100',
                    'test_set': 'training',
+                   'num_test_samples': '100',
                    'test_error_norm': 'h1'}
 
 import sys
@@ -216,24 +216,43 @@ def test_quality(config, test_samples, detailed_discretization, greedy_data, str
     # run the test
     test_size = len(test_samples)
     tic = time.time()
-    err_max = -1
-    for mu in test_samples:
+
+    def compute_error(mu):
         detailed_solution = detailed_discretization.solve(mu)
         reduced_DoF_vector = reduced_discretization.solve(mu)
         reduced_solution = reconstructor.reconstruct(reduced_DoF_vector)
-        err = test_error_norm(detailed_solution - reduced_solution)
-        if err > err_max:
-            err_max = err
-            mumax = mu
+        return test_error_norm(detailed_solution - reduced_solution)
+
     toc = time.time()
+
+    errors = np.array([compute_error(mu) for mu in test_samples])
+    max_err = -1
+    maximizing_mu = []
+    for ii in np.arange(test_size):
+        if errors[ii] > max_err:
+            max_err = errors[ii]
+            maximizing_mu = test_samples[ii]
+    max_err = max_err[0]
+
+    median = np.median(errors)
+    mean = np.mean(errors)
+    stddev = np.std(errors)
+    min_err = np.amin(errors)
+    range_err = max_err - min_err
+
     t_est = toc - tic
 
     # and report
     return '''
 {strategy} error estimation:
-    number of samples:     {test_size}
-    maximal error:         {err_max}  (for mu = {mumax})
-    elapsed time:          {t_est}
+    number of samples: {test_size}
+    elapsed time:      {t_est}
+    maximizing mu:     {maximizing_mu}
+    error
+      range:              [{min_err}, {max_err}]
+      median:             {median}
+      mean:               {mean}
+      standard deviation: {stddev}
 '''.format(**locals())
 
 
@@ -275,9 +294,9 @@ if __name__ == '__main__':
         parameter_space=global_cg_discretization.parameter_space)
 
     # create training set
-    num_training_samples = config.getint('pymor', 'num_training_samples')
     training_set_sampling_strategy = config.get('pymor', 'training_set')
     if training_set_sampling_strategy == 'random':
+        num_training_samples = config.getint('pymor', 'num_training_samples')
         training_samples = list(global_cg_discretization.parameter_space.sample_randomly(num_training_samples))
     else:
         raise ConfigError('unknown \'training_set\' sampling strategy given: \'{}\''.format(training_set_sampling_strategy))
@@ -296,13 +315,14 @@ if __name__ == '__main__':
         raise ConfigError('unknown \'framework\' given: \'{}\''.format(framework))
 
     # test quality
-    num_test_samples = config.getint('pymor', 'num_test_samples')
     test_set_sampling_strategy = config.get('pymor', 'test_set')
     if test_set_sampling_strategy == 'training':
         test_samples = training_samples
+    elif test_set_sampling_strategy == 'random':
+        num_test_samples = config.getint('pymor', 'num_test_samples')
+        test_samples = list(global_cg_discretization.parameter_space.sample_randomly(num_test_samples))
     else:
         raise ConfigError('unknown \'test_set\' sampling strategy given: \'{}\''.format(test_set_sampling_strategy))
     test_report = test_quality(config, test_samples, detailed_discretization, data, test_set_sampling_strategy)
 
-    logger.info(reduction_report)
-    logger.info(test_report)
+    logger.info(reduction_report + test_report)
