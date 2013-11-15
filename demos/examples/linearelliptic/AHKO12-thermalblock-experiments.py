@@ -117,7 +117,7 @@ def perform_standard_rb(config, detailed_discretization, training_samples):
 
     # do the actual work
     greedy_data = greedy(detailed_discretization,
-                         reduce_generic_rb,
+                         reductor,
                          training_samples,
                          initial_data=detailed_discretization.functionals['rhs'].type_source.empty(
                                       dim=detailed_discretization.functionals['rhs'].dim_source),
