@@ -193,12 +193,15 @@ def perform_lrbms(config, multiscale_discretization, training_samples):
     # perform final compression
     final_compression = config.getboolean('pymor', 'final_compression')
     if final_compression:
+        t = time.time()
+        logger.info('Applying final POD compression:')
         reduced_basis = [pod(reduced_basis[ss], product=multiscale_discretization.local_product(ss, 'h1'))
                          for ss in np.arange(num_subdomains)]
-    compressed_rb_size = [len(local_data) for local_data in reduced_basis]
+        time_compression = time.time() - t
+        compressed_rb_size = [len(local_data) for local_data in reduced_basis]
 
-    #report
-    report_string = '''
+        #report
+        report_string = '''
 Greedy basis generation:
     used estimator:        {greedy_use_estimator}
     error norm:            {greedy_error_norm_id}
@@ -206,10 +209,23 @@ Greedy basis generation:
     prescribed basis size: {greedy_max_rb_size}
     prescribed error:      {greedy_target_error}
     actual basis size:     {rb_size}
-    final compression:     {final_compression}
-    compressed basis size: {compressed_rb_size}
+    greedy time:           {greedy_data[time]}
+    compressed basis size:  {compressed_rb_size}
+    final compression time: {time_compression}
+'''.format(**locals())
+    else:
+        #report
+        report_string = '''
+Greedy basis generation:
+    used estimator:        {greedy_use_estimator}
+    error norm:            {greedy_error_norm_id}
+    extension method:      {extension_algorithm_id} ({extension_algorithm_product_id})
+    prescribed basis size: {greedy_max_rb_size}
+    prescribed error:      {greedy_target_error}
+    actual basis size:     {rb_size}
     elapsed time:          {greedy_data[time]}
 '''.format(**locals())
+
 
     return report_string, greedy_data
 
