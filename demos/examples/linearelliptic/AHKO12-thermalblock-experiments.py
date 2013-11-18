@@ -109,10 +109,10 @@ def perform_standard_rb(config, detailed_discretization, training_samples):
     extension_algorithm_id = config.get('pymor', 'extension_algorithm')
     if extension_algorithm_id == 'gram_schmidt':
         extension_algorithm = partial(gram_schmidt_basis_extension, product=extension_algorithm_product)
-        extension_algorithm_id += ' ()'.format(extension_algorithm_product_id)
+        extension_algorithm_id += ' ({})'.format(extension_algorithm_product_id)
     elif extension_algorithm_id == 'pod':
         extension_algorithm = partial(pod_basis_extension, product=extension_algorithm_product)
-        extension_algorithm_id += ' ()'.format(extension_algorithm_product_id)
+        extension_algorithm_id += ' ({})'.format(extension_algorithm_product_id)
     elif extension_algorithm_id == 'trivial':
         extension_algorithm = trivial_basis_extension
     else:
@@ -210,11 +210,11 @@ def perform_lrbms(config, multiscale_discretization, training_samples):
     if extension_algorithm_id == 'gram_schmidt':
         extension_algorithm = [partial(gram_schmidt_basis_extension, product=extension_algorithm_products[ss])
                                for ss in np.arange(num_subdomains)]
-        extension_algorithm_id += ' ()'.format(extension_algorithm_product_id)
+        extension_algorithm_id += ' ({})'.format(extension_algorithm_product_id)
     elif extension_algorithm_id == 'pod':
         extension_algorithm = [partial(pod_basis_extension, product=extension_algorithm_products[ss])
                                for ss in np.arange(num_subdomains)]
-        extension_algorithm_id += ' ()'.format(extension_algorithm_product_id)
+        extension_algorithm_id += ' ({})'.format(extension_algorithm_product_id)
     elif extension_algorithm_id == 'trivial':
         extension_algorithm = [trivial_basis_extension for ss in np.arange(num_subdomains)]
     else:
