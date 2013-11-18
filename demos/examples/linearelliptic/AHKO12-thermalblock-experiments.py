@@ -47,24 +47,25 @@ import linearellipticmultiscaleexample as dune_module
 from dune.pymor.core import wrap_module
 
 import pymor.core as core
-core.logger.MAX_HIERACHY_LEVEL = 2
-from pymor.parameters import CubicParameterSpace
-from pymor.core.exceptions import ConfigError
-from pymor.core import cache
-from pymor.reductors import reduce_generic_rb
-from pymor.reductors.basic import GenericRBReconstructor, reduce_generic_rb
-from pymor.reductors.linear import reduce_stationary_affine_linear
+core.logger.MAX_HIERACHY_LEVEL = 3
+from pymor import defaults
 from pymor.algorithms import greedy, gram_schmidt_basis_extension, pod_basis_extension, trivial_basis_extension
+from pymor.playground.algorithms import greedy_lrbms
 from pymor.algorithms.basisextension import block_basis_extension
+from pymor.core import cache
+from pymor.core.exceptions import ConfigError
+from pymor.discretizations import StationaryDiscretization
+from pymor.la import NumpyVectorArray
+from pymor.la.basic import induced_norm
+from pymor.la.blockvectorarray import BlockVectorArray
+from pymor.la.pod import pod
 from pymor.operators import NumpyMatrixOperator
 from pymor.operators.basic import NumpyLincombMatrixOperator
 from pymor.operators.block import BlockOperator
-from pymor.la import NumpyVectorArray
-from pymor.la.pod import pod
-from pymor.la.basic import induced_norm
-from pymor.la.blockvectorarray import BlockVectorArray
-from pymor.discretizations import StationaryDiscretization
-from pymor import defaults
+from pymor.parameters import CubicParameterSpace
+from pymor.reductors import reduce_generic_rb
+from pymor.reductors.basic import GenericRBReconstructor, reduce_generic_rb
+from pymor.reductors.linear import reduce_stationary_affine_linear
 
 logger = core.getLogger('pymor.main.demo')
 logger.setLevel('INFO')
@@ -207,20 +208,15 @@ def perform_lrbms(config, multiscale_discretization, training_samples):
                                             for ss in np.arange(num_subdomains)]
     # then the extension algorithm
     if extension_algorithm_id == 'gram_schmidt':
-        extension_algorithm = partial(block_basis_extension,
-                                      extension_algorithm=[partial(gram_schmidt_basis_extension,
-                                                                   product=extension_algorithm_products[ss])
-                                                           for ss in np.arange(num_subdomains)])
+        extension_algorithm = [partial(gram_schmidt_basis_extension, product=extension_algorithm_products[ss])
+                               for ss in np.arange(num_subdomains)]
         extension_algorithm_id += ' ()'.format(extension_algorithm_product_id)
     elif extension_algorithm_id == 'pod':
-        extension_algorithm = partial(block_basis_extension,
-                                      extension_algorithm=[partial(pod_basis_extension,
-                                                                   product=extension_algorithm_products[ss])
-                                                           for ss in np.arange(num_subdomains)])
+        extension_algorithm = [partial(pod_basis_extension, product=extension_algorithm_products[ss])
+                               for ss in np.arange(num_subdomains)]
         extension_algorithm_id += ' ()'.format(extension_algorithm_product_id)
     elif extension_algorithm_id == 'trivial':
-        extension_algorithm = partial(block_basis_extension,
-                                      extension_algorithm=[trivial_basis_extension for ss in np.arange(num_subdomains)])
+        extension_algorithm = [trivial_basis_extension for ss in np.arange(num_subdomains)]
     else:
         raise ConfigError('unknown \'pymor.extension_algorithm\' given:\'{}\''.format(extension_algorithm_id))
 
@@ -234,16 +230,16 @@ def perform_lrbms(config, multiscale_discretization, training_samples):
     greedy_target_error = config.getfloat('pymor', 'target_error')
 
     # do the actual work
-    greedy_data = greedy(multiscale_discretization,
-                         reduce_generic_rb,
-                         training_samples,
-                         initial_basis=[multiscale_discretization.local_rhs(ss).type_source.empty(dim=multiscale_discretization.local_rhs(ss).dim_source)
-                                       for ss in np.arange(num_subdomains)],
-                         use_estimator=greedy_use_estimator,
-                         error_norm=greedy_error_norm,
-                         extension_algorithm=extension_algorithm,
-                         max_extensions=greedy_max_rb_size,
-                         target_error=greedy_target_error)
+    greedy_data = greedy_lrbms(multiscale_discretization,
+                               reduce_generic_rb,
+                               training_samples,
+                               initial_basis=[multiscale_discretization.local_rhs(ss).type_source.empty(dim=multiscale_discretization.local_rhs(ss).dim_source)
+                                             for ss in np.arange(num_subdomains)],
+                               use_estimator=greedy_use_estimator,
+                               error_norm=greedy_error_norm,
+                               extension_algorithm=extension_algorithm,
+                               max_extensions=greedy_max_rb_size,
+                               target_error=greedy_target_error)
 
     reduced_basis = greedy_data['basis']
     rb_size = [len(local_data) for local_data in reduced_basis]
