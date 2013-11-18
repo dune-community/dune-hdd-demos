@@ -54,7 +54,7 @@ from pymor.core import cache
 from pymor.reductors import reduce_generic_rb
 from pymor.reductors.basic import GenericRBReconstructor, reduce_generic_rb
 from pymor.reductors.linear import reduce_stationary_affine_linear
-from pymor.algorithms import greedy, gram_schmidt_basis_extension, pod_basis_extension
+from pymor.algorithms import greedy, gram_schmidt_basis_extension, pod_basis_extension, trivial_basis_extension
 from pymor.algorithms.basisextension import block_basis_extension
 from pymor.operators import NumpyMatrixOperator
 from pymor.operators.basic import NumpyLincombMatrixOperator
@@ -96,19 +96,26 @@ def perform_standard_rb(config, detailed_discretization, training_samples):
     else:
         raise ConfigError('unknown \'pymor.reductor\' given: \'{}\''.format(reductor_id))
 
-    extension_algorithm_product_id = config.get('pymor', 'extension_algorithm_product')
-    assert extension_algorithm_product_id == 'h1'
-    extension_algorithm_product = detailed_discretization.h1_product
-
+    # first the extension algorithm product, if needed
+    extension_algorithm_id = config.get('pymor', 'extension_algorithm')
+    if extension_algorithm_id in {'gram_schmidt', 'pod'}:
+        extension_algorithm_product_id = config.get('pymor', 'extension_algorithm_product')
+        if extension_algorithm_product_id == 'None':
+            extension_algorithm_product = None
+        else:
+            extension_algorithm_product = detailed_discretization.products[extension_algorithm_product_id]
+    # then the extension algorithm
     extension_algorithm_id = config.get('pymor', 'extension_algorithm')
     if extension_algorithm_id == 'gram_schmidt':
-        extension_algorithm = gram_schmidt_basis_extension
+        extension_algorithm = partial(gram_schmidt_basis_extension, product=extension_algorithm_product)
+        extension_algorithm_id += ' ()'.format(extension_algorithm_product_id)
     elif extension_algorithm_id == 'pod':
-        extension_algorithm = pod_basis_extension
+        extension_algorithm = partial(pod_basis_extension, product=extension_algorithm_product)
+        extension_algorithm_id += ' ()'.format(extension_algorithm_product_id)
+    elif extension_algorithm_id == 'trivial':
+        extension_algorithm = trivial_basis_extension
     else:
         raise ConfigError('unknown \'pymor.extension_algorithm\' given: \'{}\''.format(extension_algorithm_id))
-
-    extension_algorithm = partial(extension_algorithm, product=extension_algorithm_product)
 
     greedy_error_norm_id = config.get('pymor', 'greedy_error_norm')
     assert greedy_error_norm_id == 'h1'
@@ -129,14 +136,52 @@ def perform_standard_rb(config, detailed_discretization, training_samples):
                          extension_algorithm=extension_algorithm,
                          max_extensions=greedy_max_rb_size,
                          target_error=greedy_target_error)
-    rb_size = len(greedy_data['basis'])
+    reduced_basis = greedy_data['basis']
+    rb_size = len(reduced_basis)
 
-    #report
-    report_string = '''
+    # perform final compression
+    final_compression = config.getboolean('pymor', 'final_compression')
+    if final_compression:
+        t = time.time()
+        logger.info('Applying final compression ...')
+
+        # select local product
+        compression_product_id = config.get('pymor', 'compression_product')
+        if compression_product_id == 'None':
+            compression_product = None
+        else:
+            compression_product = detailed_discretization.products[compression_product_id]
+
+        # do the actual work
+        reduced_basis = pod(reduced_basis, product=compression_product)
+
+        rd, rc, _ = reductor(detailed_discretization, reduced_basis)
+        greedy_data['reduced_discretization'], greedy_data['reconstructor'] = rd, rc
+
+        time_compression = time.time() - t
+        compressed_rb_size = len(reduced_basis)
+
+        #report
+        report_string = '''
 Greedy basis generation:
     used estimator:        {greedy_use_estimator}
     error norm:            {greedy_error_norm_id}
-    extension method:      {extension_algorithm_id} ({extension_algorithm_product_id})
+    extension method:      {extension_algorithm_id}
+    prescribed basis size: {greedy_max_rb_size}
+    prescribed error:      {greedy_target_error}
+    actual basis size:     {rb_size}
+    greedy time:           {greedy_data[time]}
+    compression method:     pod ({compression_product_id})
+    compressed basis size:  {compressed_rb_size}
+    final compression time: {time_compression}
+'''.format(**locals())
+    else:
+        #report
+        report_string = '''
+Greedy basis generation:
+    used estimator:        {greedy_use_estimator}
+    error norm:            {greedy_error_norm_id}
+    extension method:      {extension_algorithm_id}
     prescribed basis size: {greedy_max_rb_size}
     prescribed error:      {greedy_target_error}
     actual basis size:     {rb_size}
@@ -151,28 +196,33 @@ def perform_lrbms(config, multiscale_discretization, training_samples):
     num_subdomains = multiscale_discretization._impl.num_subdomains()
 
     # parse config
-    extension_algorithm_product_id = config.get('pymor', 'extension_algorithm_product')
-    if extension_algorithm_product_id == 'None':
-        extension_algorithm_products = [None for ss in np.arange(num_subdomains)]
-    elif extension_algorithm_product_id == 'h1':
-        extension_algorithm_products = [multiscale_discretization.local_product(ss, 'h1')
-                                        for ss in np.arange(num_subdomains)]
-    else:
-        raise ConfigError('unknown \'pymor.extension_algorithm_product\' given:\'{}\''.format(
-                          extension_algorithm_product_id))
-
+    # first the extension algorithm product, if needed
     extension_algorithm_id = config.get('pymor', 'extension_algorithm')
+    if extension_algorithm_id in {'gram_schmidt', 'pod'}:
+        extension_algorithm_product_id = config.get('pymor', 'extension_algorithm_product')
+        if extension_algorithm_product_id == 'None':
+            extension_algorithm_products = [None for ss in np.arange(num_subdomains)]
+        else:
+            extension_algorithm_products = [multiscale_discretization.local_product(ss, extension_algorithm_product_id)
+                                            for ss in np.arange(num_subdomains)]
+    # then the extension algorithm
     if extension_algorithm_id == 'gram_schmidt':
-        extension_algorithm = gram_schmidt_basis_extension
+        extension_algorithm = partial(block_basis_extension,
+                                      extension_algorithm=[partial(gram_schmidt_basis_extension,
+                                                                   product=extension_algorithm_products[ss])
+                                                           for ss in np.arange(num_subdomains)])
+        extension_algorithm_id += ' ()'.format(extension_algorithm_product_id)
     elif extension_algorithm_id == 'pod':
-        extension_algorithm = pod_basis_extension
+        extension_algorithm = partial(block_basis_extension,
+                                      extension_algorithm=[partial(pod_basis_extension,
+                                                                   product=extension_algorithm_products[ss])
+                                                           for ss in np.arange(num_subdomains)])
+        extension_algorithm_id += ' ()'.format(extension_algorithm_product_id)
+    elif extension_algorithm_id == 'trivial':
+        extension_algorithm = partial(block_basis_extension,
+                                      extension_algorithm=[trivial_basis_extension for ss in np.arange(num_subdomains)])
     else:
         raise ConfigError('unknown \'pymor.extension_algorithm\' given:\'{}\''.format(extension_algorithm_id))
-
-    extension_algorithm = partial(block_basis_extension,
-                                  extension_algorithm=[partial(extension_algorithm,
-                                                               product=extension_algorithm_products[ss])
-                                                       for ss in np.arange(num_subdomains)])
 
     greedy_error_norm_id = config.get('pymor', 'greedy_error_norm')
     assert greedy_error_norm_id == 'h1'
@@ -202,22 +252,21 @@ def perform_lrbms(config, multiscale_discretization, training_samples):
     final_compression = config.getboolean('pymor', 'final_compression')
     if final_compression:
         t = time.time()
-        logger.info('Applying final POD compression:')
+        logger.info('Applying final compression ...')
 
         # select local product
         compression_product_id = config.get('pymor', 'compression_product')
         if compression_product_id == 'None':
             compression_products = [None for ss in np.arange(num_subdomains)]
-        elif compression_product_id == 'h1':
-            compression_products = [multiscale_discretization.local_product(ss, 'h1')
-                                            for ss in np.arange(num_subdomains)]
         else:
-            raise ConfigError('unknown \'pymor.compression_product\' given:\'{}\''.format(
-                              compression_product_id))
+            compression_products = [multiscale_discretization.local_product(ss, compression_product_id)
+                                            for ss in np.arange(num_subdomains)]
 
         # do the actual work
-        reduced_basis = [pod(reduced_basis[ss], product=multiscale_discretization.local_product(ss, 'h1'))
-                         for ss in np.arange(num_subdomains)]
+        reduced_basis = [pod(reduced_basis[ss], product=compression_products[ss]) for ss in np.arange(num_subdomains)]
+
+        rd, rc, _ = reduce_generic_rb(multiscale_discretization, reduced_basis)
+        greedy_data['reduced_discretization'], greedy_data['reconstructor'] = rd, rc
 
         time_compression = time.time() - t
         compressed_rb_size = [len(local_data) for local_data in reduced_basis]
@@ -227,12 +276,12 @@ def perform_lrbms(config, multiscale_discretization, training_samples):
 Greedy basis generation:
     used estimator:        {greedy_use_estimator}
     error norm:            {greedy_error_norm_id}
-    extension method:      {extension_algorithm_id} ({extension_algorithm_product_id})
+    extension method:      {extension_algorithm_id}
     prescribed basis size: {greedy_max_rb_size}
     prescribed error:      {greedy_target_error}
     actual basis size:     {rb_size}
     greedy time:           {greedy_data[time]}
-    compression product:    {compression_product_id}
+    compression method:     pod ({compression_product_id})
     compressed basis size:  {compressed_rb_size}
     final compression time: {time_compression}
 '''.format(**locals())
@@ -242,7 +291,7 @@ Greedy basis generation:
 Greedy basis generation:
     used estimator:        {greedy_use_estimator}
     error norm:            {greedy_error_norm_id}
-    extension method:      {extension_algorithm_id} ({extension_algorithm_product_id})
+    extension method:      {extension_algorithm_id}
     prescribed basis size: {greedy_max_rb_size}
     prescribed error:      {greedy_target_error}
     actual basis size:     {rb_size}
