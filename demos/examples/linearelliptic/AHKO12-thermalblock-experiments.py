@@ -122,14 +122,14 @@ def perform_standard_rb(config, detailed_discretization, training_samples):
     greedy_data = greedy(detailed_discretization,
                          reductor,
                          training_samples,
-                         initial_data=detailed_discretization.functionals['rhs'].type_source.empty(
+                         initial_basis=detailed_discretization.functionals['rhs'].type_source.empty(
                                       dim=detailed_discretization.functionals['rhs'].dim_source),
                          use_estimator=greedy_use_estimator,
                          error_norm=greedy_error_norm,
                          extension_algorithm=extension_algorithm,
                          max_extensions=greedy_max_rb_size,
                          target_error=greedy_target_error)
-    rb_size = len(greedy_data['data'])
+    rb_size = len(greedy_data['basis'])
 
     #report
     report_string = '''
@@ -187,7 +187,7 @@ def perform_lrbms(config, multiscale_discretization, training_samples):
     greedy_data = greedy(multiscale_discretization,
                          reduce_generic_rb,
                          training_samples,
-                         initial_data=[multiscale_discretization.local_rhs(ss).type_source.empty(dim=multiscale_discretization.local_rhs(ss).dim_source)
+                         initial_basis=[multiscale_discretization.local_rhs(ss).type_source.empty(dim=multiscale_discretization.local_rhs(ss).dim_source)
                                        for ss in np.arange(num_subdomains)],
                          use_estimator=greedy_use_estimator,
                          error_norm=greedy_error_norm,
@@ -195,7 +195,7 @@ def perform_lrbms(config, multiscale_discretization, training_samples):
                          max_extensions=greedy_max_rb_size,
                          target_error=greedy_target_error)
 
-    reduced_basis = greedy_data['data']
+    reduced_basis = greedy_data['basis']
     rb_size = [len(local_data) for local_data in reduced_basis]
 
     # perform final compression
