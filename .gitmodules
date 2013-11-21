@@ -46,7 +46,7 @@
 	path = dune-pymor
 	url = https://github.com/pymor/dune-pymor.git
         ignore = untracked
-[submodule "pyMor"]
-	path = pyMor
+[submodule "pymor"]
+	path = pymor
 	url = https://github.com/pymor/pymor.git
         ignore = untracked
