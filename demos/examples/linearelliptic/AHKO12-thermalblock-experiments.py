@@ -423,8 +423,10 @@ if __name__ == '__main__':
         reduction_report, data = perform_lrbms(config, detailed_discretization, training_samples)
     else:
         raise ConfigError('unknown \'framework\' given: \'{}\''.format(framework))
+    logger.info(reduction_report)
 
     # test quality
+    logger.info('testing reduction quality:')
     test_set_sampling_strategy = config.get('pymor', 'test_set')
     if test_set_sampling_strategy == 'training':
         test_samples = training_samples
@@ -434,5 +436,4 @@ if __name__ == '__main__':
     else:
         raise ConfigError('unknown \'test_set\' sampling strategy given: \'{}\''.format(test_set_sampling_strategy))
     test_report = test_quality(config, test_samples, detailed_discretization, data, test_set_sampling_strategy)
-
-    logger.info(reduction_report + test_report)
+    logger.info(test_report)
