@@ -225,7 +225,7 @@ def perform_lrbms(config, multiscale_discretization, training_samples):
     if greedy_error_norm_id == 'None':
         greedy_error_norm = None
     else:
-        greedy_error_norm = induced_norm(multiscale_discretization.product[greedy_error_norm_id])
+        greedy_error_norm = induced_norm(multiscale_discretization.products[greedy_error_norm_id])
 
     greedy_use_estimator = config.getboolean('pymor', 'use_estimator')
     assert greedy_use_estimator is False
