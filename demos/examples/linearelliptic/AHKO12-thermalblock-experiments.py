@@ -59,6 +59,7 @@ from pymor.la import NumpyVectorArray
 from pymor.la.basic import induced_norm
 from pymor.la.blockvectorarray import BlockVectorArray
 from pymor.la.pod import pod
+from pymor.la import induced_norm
 from pymor.operators import NumpyMatrixOperator
 from pymor.operators.basic import NumpyLincombMatrixOperator
 from pymor.operators.block import BlockOperator
@@ -221,8 +222,10 @@ def perform_lrbms(config, multiscale_discretization, training_samples):
         raise ConfigError('unknown \'pymor.extension_algorithm\' given:\'{}\''.format(extension_algorithm_id))
 
     greedy_error_norm_id = config.get('pymor', 'greedy_error_norm')
-    assert greedy_error_norm_id == 'h1'
-    greedy_error_norm = multiscale_discretization.h1_norm
+    if greedy_error_norm_id == 'None':
+        greedy_error_norm = None
+    else:
+        greedy_error_norm = induced_norm(multiscale_discretization.product[greedy_error_norm_id])
 
     greedy_use_estimator = config.getboolean('pymor', 'use_estimator')
     assert greedy_use_estimator is False
@@ -301,9 +304,11 @@ Greedy basis generation:
 def test_quality(config, test_samples, detailed_discretization, greedy_data, strategy = 'stochastic'):
 
     # parse config
-    test_error_norm = config.get('pymor', 'test_error_norm')
-    assert test_error_norm == 'h1'
-    test_error_norm = detailed_discretization.h1_norm
+    test_error_norm_id = config.get('pymor', 'test_error_norm')
+    if test_error_norm_id == 'None':
+        test_error_norm = None
+    else:
+        test_error_norm = induced_norm(detailed_discretization.prodcut[test_error_norm_id])
 
     # get reduced quantities
     reduced_discretization = greedy_data['reduced_discretization']
@@ -317,7 +322,10 @@ def test_quality(config, test_samples, detailed_discretization, greedy_data, str
         detailed_solution = detailed_discretization.solve(mu)
         reduced_DoF_vector = reduced_discretization.solve(mu)
         reduced_solution = reconstructor.reconstruct(reduced_DoF_vector)
-        return test_error_norm(detailed_solution - reduced_solution)
+        if test_error_norm is None:
+            return (detailed_solution - reduced_solution).l2_norm()
+        else:
+            return test_error_norm(detailed_solution - reduced_solution)
 
     toc = time.time()
 
@@ -341,6 +349,7 @@ def test_quality(config, test_samples, detailed_discretization, greedy_data, str
     # and report
     return '''
 {strategy} error estimation:
+    error norm: {test_error_norm_id}
     number of samples: {test_size}
     elapsed time:      {t_est}
     maximizing mu:     {maximizing_mu}
