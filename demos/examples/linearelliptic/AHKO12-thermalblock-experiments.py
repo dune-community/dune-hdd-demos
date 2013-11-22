@@ -47,7 +47,7 @@ import linearellipticmultiscaleexample as dune_module
 from dune.pymor.core import wrap_module
 
 import pymor.core as core
-core.logger.MAX_HIERACHY_LEVEL = 3
+core.logger.MAX_HIERACHY_LEVEL = 2
 from pymor import defaults
 from pymor.algorithms import greedy, gram_schmidt_basis_extension, pod_basis_extension, trivial_basis_extension
 from pymor.playground.algorithms import greedy_lrbms
