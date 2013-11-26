@@ -51,7 +51,6 @@ core.logger.MAX_HIERACHY_LEVEL = 2
 from pymor import defaults
 from pymor.algorithms import greedy, gram_schmidt_basis_extension, pod_basis_extension, trivial_basis_extension
 from pymor.playground.algorithms import greedy_lrbms
-from pymor.algorithms.basisextension import block_basis_extension
 from pymor.core import cache
 from pymor.core.exceptions import ConfigError
 from pymor.discretizations import StationaryDiscretization
