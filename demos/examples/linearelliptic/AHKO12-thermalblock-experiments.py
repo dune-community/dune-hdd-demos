@@ -307,7 +307,7 @@ def test_quality(config, test_samples, detailed_discretization, greedy_data, str
     if test_error_norm_id == 'None':
         test_error_norm = None
     else:
-        test_error_norm = induced_norm(detailed_discretization.prodcut[test_error_norm_id])
+        test_error_norm = induced_norm(detailed_discretization.products[test_error_norm_id])
 
     # get reduced quantities
     reduced_discretization = greedy_data['reduced_discretization']
