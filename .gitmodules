@@ -40,3 +40,6 @@
 [submodule "dune-pymor"]
 	path = dune-pymor
 	url = https://github.com/pymor/dune-pymor.git
+[submodule "dune-typetree"]
+	path = dune-typetree
+	url = http://git.dune-project.org/repositories/dune-typetree
