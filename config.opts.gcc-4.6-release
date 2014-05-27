@@ -3,12 +3,12 @@
 # Copyright holders: Felix Albrecht
 # License: BSD 2-Clause License (http://opensource.org/licenses/BSD-2-Clause)
 
-CONFIGURE_FLAGS="
+CONFIGURE_FLAGS=" \
   CC=gcc-4.6 \
   CXX=g++-4.6 \
   F77=gfortran-4.6 \
-  CXXFLAGS='-DNDEBUG -DDNDEBUG -funroll-loops -m64 -mfpmath=sse -falign-loops -mtune=native -march=native -O3 -pipe -fomit-frame-pointer -fPIC'
-  --enable-fieldvector-size-is-method \
-  --disable-documentation \
+  CXXFLAGS='-DNDEBUG -DDNDEBUG -Os -std=c++0x -fPIC -w' \
   INKSCAPE=no \
+  --enable-experimental-grid-extensions \
+  --disable-documentation \
 "
