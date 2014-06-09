@@ -1,18 +1,23 @@
 [submodule "dune-common"]
 	path = dune-common
 	url = http://git.dune-project.org/repositories/dune-common
+        ignore = dirty
 [submodule "dune-grid"]
 	path = dune-grid
 	url = http://git.dune-project.org/repositories/dune-grid
+        ignore = dirty
 [submodule "dune-geometry"]
 	path = dune-geometry
 	url = http://git.dune-project.org/repositories/dune-geometry
+        ignore = untracked
 [submodule "dune-fem"]
 	path = dune-fem
 	url = http://users.dune-project.org/repositories/projects/dune-fem-unofficial.git
+        ignore = untracked
 [submodule "dune-pdelab"]
 	path = dune-pdelab
 	url = http://users.dune-project.org/repositories/projects/dune-pdelab-unofficial.git
+        ignore = untracked
 [submodule "dune-stuff"]
 	path = dune-stuff
 	url = http://users.dune-project.org/repositories/projects/dune-stuff.git
@@ -22,9 +27,11 @@
 [submodule "dune-localfunctions"]
 	path = dune-localfunctions
 	url = http://git.dune-project.org/repositories/dune-localfunctions
+        ignore = untracked
 [submodule "dune-istl"]
 	path = dune-istl
 	url = http://git.dune-project.org/repositories/dune-istl
+        ignore = untracked
 [submodule "local/bin"]
 	path = local/bin
 	url = http://users.dune-project.org/repositories/projects/dune-demos-bin.git
@@ -43,3 +50,4 @@
 [submodule "dune-typetree"]
 	path = dune-typetree
 	url = http://git.dune-project.org/repositories/dune-typetree
+        ignore = untracked
