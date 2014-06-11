@@ -366,18 +366,20 @@ if __name__ == '__main__':
         assert config.has_section('pymor')
     except:
         raise ConfigError('CONFIGFILE has to be the name of an existing file that contains a [pymor] section')
-    if config.has_section('pymor.defaults'):
-        float_suffixes = ['_tol', '_threshold']
-        boolean_suffixes = ['_find_duplicates', '_check', '_symmetrize', '_orthonormalize', '_raise_negative',
-                            'compact_print']
-        int_suffixes = ['_maxiter']
-        for key, value in config.items('pymor.defaults'):
-            if any([len(key) >= len(suffix) and key[-len(suffix):] == suffix for suffix in float_suffixes]):
-                defaults.__setattr__(key, config.getfloat('pymor.defaults', key))
-            elif any([len(key) >= len(suffix) and key[-len(suffix):] == suffix for suffix in boolean_suffixes]):
-                defaults.__setattr__(key, config.getboolean('pymor.defaults', key))
-            elif any([len(key) >= len(suffix) and key[-len(suffix):] == suffix for suffix in int_suffixes]):
-                defaults.__setattr__(key, config.getint('pymor.defaults', key))
+    float_suffixes = ['_tol', '_threshold']
+    boolean_suffixes = ['_find_duplicates', '_check', '_symmetrize', '_orthonormalize', '_raise_negative',
+                        'compact_print']
+    int_suffixes = ['_maxiter']
+    for key, value in config.items('pymor'):
+        if len(key) > 9 and key[:9] == 'defaults.':
+            real_key = key[9:]
+            if any([len(real_key) >= len(suffix) and real_key[-len(suffix):] == suffix for suffix in float_suffixes]):
+                defaults.__setattr__(real_key, config.getfloat('pymor', key))
+            elif any([len(real_key) >= len(suffix) and real_key[-len(suffix):] == suffix for suffix in boolean_suffixes]):
+                defaults.__setattr__(real_key, config.getboolean('pymor', key))
+            elif any([len(real_key) >= len(suffix) and real_key[-len(suffix):] == suffix for suffix in int_suffixes]):
+                defaults.__setattr__(real_key, config.getint('pymor', key))
+    logger.info('These are the current defaults: {}'.format(defaults))
 
     # load module
     example, wrapper = load_dune_module(args['CONFIGFILE'])
