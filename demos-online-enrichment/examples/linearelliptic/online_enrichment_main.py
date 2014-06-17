@@ -398,20 +398,96 @@ if __name__ == '__main__':
         training_samples = list(discretization.parameter_space.sample_randomly(num_training_samples))
     else:
         raise ConfigError('unknown \'training_set\' sampling strategy given: \'{}\''.format(training_set_sampling_strategy))
+    restricted_training_samples = list()
+    for ii in np.arange(1):
+        mu = training_samples[ii].copy()
+        # elminiate 3rd parameter component (small block)
+        mu[mu.keys()[0]][2] = mu[mu.keys()[0]][0]
+        if not mu in restricted_training_samples:
+            restricted_training_samples.append(mu)
+
+    fixed_mu = training_samples[0].copy()
+    for key in fixed_mu.keys():
+        for ii in np.arange(len(fixed_mu[key])):
+            fixed_mu[key][ii] = 1.0
 
     logger.info('running lrbms:')
-    reduction_report, data = perform_lrbms(config, discretization, training_samples)
+    reduction_report, data = perform_lrbms(config, discretization, restricted_training_samples)
     logger.info(reduction_report)
+    rd = data['reduced_discretization']
+    reconstructor = data['reconstructor']
+    basis = data['basis']
 
-    # test quality
-    logger.info('testing reduction quality:')
-    test_set_sampling_strategy = config.get('pymor', 'test_set')
-    if test_set_sampling_strategy == 'training':
-        test_samples = training_samples
-    elif test_set_sampling_strategy == 'random':
-        num_test_samples = config.getint('pymor', 'num_test_samples')
-        test_samples = list(discretization.parameter_space.sample_randomly(num_test_samples))
-    else:
-        raise ConfigError('unknown \'test_set\' sampling strategy given: \'{}\''.format(test_set_sampling_strategy))
-    test_report = test_quality(config, test_samples, discretization, data, test_set_sampling_strategy)
-    logger.info(test_report)
+    online_mu = restricted_training_samples[-1].copy()
+    online_mu[online_mu.keys()[0]][2] = training_samples[len(restricted_training_samples)][online_mu.keys()[0]][0]
+    online_mu_dune = wrapper.dune_parameter(online_mu)
+    assert(online_mu not in restricted_training_samples)
+    logger.info('starting online phase for mu = {}:'.format(online_mu))
+    logger.info('computing reduced solution...')
+    p_red = rd.solve(online_mu)
+    logger.info('computing local errors:')
+    p_h = reconstructor.reconstruct(p_red)
+    p_h_vectors = [p_h.block(ii)._list[0]._impl for ii in np.arange(len(p_h.block_dims))]
+    solution = discretization.solve(online_mu)
+    difference = solution - p_h
+    local_errors = [np.sqrt(discretization.local_product(ss, 'h1_semi')._impl.apply2(difference.block(ss)._list[0]._impl,
+                                                                                     difference.block(ss)._list[0]._impl))
+                    for ss in np.arange(len(difference.block_dims))]
+    logger.info('  {}'.format(local_errors))
+    logger.info('performing local offline phase:')
+    for ii in np.arange(len(basis)):
+        subdomain = np.argmax(local_errors)
+        local_errors[subdomain] = 0.0
+        logger.info('  enriching on subdomain {}...'.format(subdomain))
+        local_correction = discretization._impl.solve_for_local_correction(p_h_vectors, subdomain, online_mu_dune)
+        basis[subdomain], _ = gram_schmidt_basis_extension(basis[subdomain],
+                                                           wrapper.vector_array(wrapper[local_correction]),
+                                                           product=discretization.local_product(subdomain, 'h1_semi'))
+
+    logger.info('  reducing...')
+    rd, reconstructor, _ = reduce_generic_rb(discretization, basis)
+
+    logger.info('computing local errors:')
+    p_red = rd.solve(online_mu)
+    p_h = reconstructor.reconstruct(p_red)
+    p_h_vectors = [p_h.block(ii)._list[0]._impl for ii in np.arange(len(p_h.block_dims))]
+    solution = discretization.solve(online_mu)
+    difference = solution - p_h
+    local_errors = [np.sqrt(discretization.local_product(ss, 'h1_semi')._impl.apply2(difference.block(ss)._list[0]._impl,
+                                                                                     difference.block(ss)._list[0]._impl))
+                    for ss in np.arange(len(difference.block_dims))]
+    logger.info('  {}'.format(local_errors))
+
+
+        # p_red = rd.solve(online_mu)
+        # p_h = reconstructor.reconstruct(p_red)
+        # solution = discretization.solve(online_mu)
+        # difference = solution - p_h
+        # local_errors = [np.sqrt(discretization.local_product(ss,
+        #     'h1_semi')._impl.apply2(difference.block(ss)._list[0]._impl,
+        #         difference.block(ss)._list[0]._impl))
+        #     for ss in np.arange(len(difference.block_dims))]
+        # logger.info('{}'.format(local_errors))
+
+    import ipdb; ipdb.set_trace()
+
+    # local_estimates = list(discretization._impl.estimate_local(p_h_vectors,
+    #                                                            wrapper.dune_parameter(online_mu),
+    #                                                            wrapper.dune_parameter(fixed_mu)))
+    # discretization._impl.visualize_information(p_h_vectors,
+    #                                            'info',
+    #                                            wrapper.dune_parameter(online_mu),
+    #                                            wrapper.dune_parameter(fixed_mu))
+
+    # # test quality
+    # logger.info('testing reduction quality:')
+    # test_set_sampling_strategy = config.get('pymor', 'test_set')
+    # if test_set_sampling_strategy == 'training':
+    #     test_samples = training_samples
+    # elif test_set_sampling_strategy == 'random':
+    #     num_test_samples = config.getint('pymor', 'num_test_samples')
+    #     test_samples = list(discretization.parameter_space.sample_randomly(num_test_samples))
+    # else:
+    #     raise ConfigError('unknown \'test_set\' sampling strategy given: \'{}\''.format(test_set_sampling_strategy))
+    # test_report = test_quality(config, test_samples, discretization, data, test_set_sampling_strategy)
+    # logger.info(test_report)
