@@ -207,12 +207,12 @@ def perform_lrbms(config, multiscale_discretization, training_samples):
         extension_algorithm = [partial(gram_schmidt_basis_extension, product=extension_algorithm_products[ss])
                                for ss in np.arange(num_subdomains)]
         extension_algorithm_id += ' ({})'.format(extension_algorithm_product_id)
-    elif extension_algorithm_id == 'pod':
-        extension_algorithm = [partial(pod_basis_extension, product=extension_algorithm_products[ss])
-                               for ss in np.arange(num_subdomains)]
-        extension_algorithm_id += ' ({})'.format(extension_algorithm_product_id)
-    elif extension_algorithm_id == 'trivial':
-        extension_algorithm = [trivial_basis_extension for ss in np.arange(num_subdomains)]
+    # elif extension_algorithm_id == 'pod':
+    #     extension_algorithm = [partial(pod_basis_extension, product=extension_algorithm_products[ss])
+    #                            for ss in np.arange(num_subdomains)]
+    #     extension_algorithm_id += ' ({})'.format(extension_algorithm_product_id)
+    # elif extension_algorithm_id == 'trivial':
+    #     extension_algorithm = [trivial_basis_extension for ss in np.arange(num_subdomains)]
     else:
         raise ConfigError('unknown \'pymor.extension_algorithm\' given:\'{}\''.format(extension_algorithm_id))
 
@@ -227,12 +227,16 @@ def perform_lrbms(config, multiscale_discretization, training_samples):
     greedy_max_rb_size = config.getint('pymor', 'max_rb_size')
     greedy_target_error = config.getfloat('pymor', 'target_error')
 
+    # initialize the basis with 1
+    global_vector_of_ones = multiscale_discretization._impl.create_ones()
+    initial_basis = [wrapper.vector_array(wrapper[multiscale_discretization._impl.localize_vector(global_vector_of_ones, ss)])
+                     for ss in np.arange(num_subdomains)]
+
     # do the actual work
     greedy_data = greedy_lrbms(multiscale_discretization,
                                reduce_generic_rb,
                                training_samples,
-                               initial_basis=[multiscale_discretization.local_rhs(ss).type_source.empty(dim=multiscale_discretization.local_rhs(ss).dim_source)
-                                             for ss in np.arange(num_subdomains)],
+                               initial_basis=initial_basis,
                                use_estimator=greedy_use_estimator,
                                error_norm=greedy_error_norm,
                                extension_algorithm=extension_algorithm,
