@@ -1,0 +1,19 @@
+[gcc_4.8] 
+file = config.opts.gcc-snapshot
+cc = /usr/lib/gcc-snapshot/bin/gcc
+bleeding = True
+
+[gcc_4.6]
+file = config.opts.gcc-4.6
+cc = gcc-4.6
+bleeding = True
+
+[icc_14]
+file = config.opts.icc
+cc = icc
+bleeding = True
+
+[clang_3.1]
+file = config.opts.clang
+cc = clang
+bleeding = True
