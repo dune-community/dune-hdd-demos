@@ -7,7 +7,7 @@ CONFIGURE_FLAGS=" \
   CC=gcc-4.8 \
   CXX=g++-4.8 \
   F77=gfortran-4.8 \
-  CXXFLAGS='-DNDEBUG -DDNDEBUG -Og -g3 -ggdb -std=c++0x -fPIC' \
+  CXXFLAGS='-fno-strict-aliasing -DDEBUG -Og -g3 -ggdb -std=c++0x -Wextra -Wall -fPIC' \
   INKSCAPE=no \
   --enable-experimental-grid-extensions \
   --disable-documentation \
