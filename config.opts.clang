@@ -7,7 +7,7 @@ CONFIGURE_FLAGS=" \
   CC=clang \
   CXX=clang++ \
   F77=gfortran \
-  CXXFLAGS='-DDEBUG -O0 -g3 -ggdb -std=c++0x -fPIC -ftemplate-backtrace-limit=0' \
+  CXXFLAGS='-DDEBUG -O0 -g3 -ggdb -std=c++0x -fPIC -ftemplate-backtrace-limit=0 -Wextra -Wall -Wunused-variable -Winline -Wparentheses -pedantic -Wredundant-decls -Wshadow -Wundef -Wnon-virtual-dtor -Wnon-literal-null-conversion -Wused-but-marked-unused -Wno-tautological-compare -Wfloat-equal -Wdisabled-macro-expansion -Wcovered-switch-default -Wswitch-enum -Wunreachable-code -Wshorten-64-to-32 -DDUNE_GRID_EXPERIMENTAL_GRID_EXTENSIONS=1' \
   INKSCAPE=no \
   --disable-documentation \
   --enable-experimental-grid-extensions \
