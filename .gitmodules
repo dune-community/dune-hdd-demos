@@ -51,3 +51,6 @@
 	path = dune-typetree
 	url = http://git.dune-project.org/repositories/dune-typetree
         ignore = untracked
+[submodule "configs"]
+	path = configs
+	url = http://users.dune-project.org/repositories/projects/dune-config-opts.git
