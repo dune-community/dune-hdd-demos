@@ -1,14 +1,1 @@
-# This file is part of the dune-hdd-demos project:
-#   http://users.dune-project.org/projects/dune-hdd-demos
-# Copyright holders: Felix Albrecht
-# License: BSD 2-Clause License (http://opensource.org/licenses/BSD-2-Clause)
-
-CONFIGURE_FLAGS=" \
-  CC=gcc \
-  CXX=g++ \
-  F77=gfortran \
-  CXXFLAGS='-DNDEBUG -DDNDEBUG -Os -std=c++0x -fPIC -w' \
-  INKSCAPE=no \
-  --enable-experimental-grid-extensions \
-  --disable-documentation \
-"
+configs/config.opts.gcc-release
