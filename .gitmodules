@@ -56,4 +56,4 @@
 	url = http://users.dune-project.org/repositories/projects/dune-config-opts.git
 [submodule "simdb"]
 	path = simdb
-	url = https://github.com/sdrave/simdb.git
+	url = https://github.com/ftalbrecht/simdb.git
