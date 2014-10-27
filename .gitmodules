@@ -37,7 +37,7 @@
 	url = http://users.dune-project.org/repositories/projects/dune-demos-bin.git
 [submodule "dune-gdt"]
 	path = dune-gdt
-	url = http://users.dune-project.org/repositories/projects/dune-gdt.git
+	url = https://github.com/ftalbrecht/dune-gdt.git
 [submodule "dune-hdd"]
 	path = dune-hdd
 	url = http://users.dune-project.org/repositories/projects/dune-hdd.git
