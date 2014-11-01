@@ -57,3 +57,6 @@
 [submodule "simdb"]
 	path = simdb
 	url = https://github.com/ftalbrecht/simdb.git
+[submodule "simpletq"]
+	path = simpletq
+	url = https://github.com/sdrave/simpletq.git
