@@ -3,3 +3,4 @@ demos-*
 PATH.sh
 virtualenv
 DATA
+QUEUE
