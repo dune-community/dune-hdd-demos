@@ -8,7 +8,7 @@
         ignore = dirty
 [submodule "dune-geometry"]
 	path = dune-geometry
-	url = http://git.dune-project.org/repositories/dune-geometry
+	url = http://git.dune-project.org/repositories/exadune/geometry
         ignore = untracked
 [submodule "dune-fem"]
 	path = dune-fem
