@@ -49,7 +49,7 @@
 	url = https://github.com/ftalbrecht/pymor.git
 [submodule "dune-typetree"]
 	path = dune-typetree
-	url = http://git.dune-project.org/repositories/dune-typetree
+	url = http://git.dune-project.org/repositories/exadune/typetree
         ignore = untracked
 [submodule "configs"]
 	path = configs
