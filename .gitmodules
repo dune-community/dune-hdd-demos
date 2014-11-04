@@ -26,7 +26,7 @@
 	url = http://users.dune-project.org/repositories/projects/dune-grid-multiscale.git
 [submodule "dune-localfunctions"]
 	path = dune-localfunctions
-	url = http://git.dune-project.org/repositories/dune-localfunctions
+	url = http://git.dune-project.org/repositories/exadune/localfunctions
         ignore = untracked
 [submodule "dune-istl"]
 	path = dune-istl
