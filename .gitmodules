@@ -1,6 +1,6 @@
 [submodule "dune-common"]
 	path = dune-common
-	url = http://git.dune-project.org/repositories/dune-common
+	url = http://git.dune-project.org/repositories/exadune/common
         ignore = dirty
 [submodule "dune-grid"]
 	path = dune-grid
