@@ -60,3 +60,6 @@
 [submodule "simpletq"]
 	path = simpletq
 	url = https://github.com/sdrave/simpletq.git
+[submodule "dune-functions"]
+	path = dune-functions
+	url = http://git.dune-project.org/repositories/exadune/functions
