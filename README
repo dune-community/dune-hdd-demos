@@ -26,7 +26,7 @@ Please note that DUNE in general is known to work best with gcc. dune-hdd
 is tested to work with gcc-4.6 and clang-3.1-8. You can now set the CC
 environment variable to match your compiler and generate a PATH.sh file, i.e.:
 
-    CC=gcc ./local/bin/gen_path.py
+    CC=clang ./local/bin/gen_path.py
     source PATH.sh
 
 It is convenient to source this PATH.sh file from now on whenever you want to
@@ -36,8 +36,35 @@ to be set correctly.
 If your system has all dependencies installed you can now build everything by
 calling:
 
-    ./local/bin/startup.sh
+    ./local/bin/download_external_libraries.py
+    CC=clang-release ./local/bin/build_external_libraries.py
+    source PATH.sh
+    ./local/bin/build_dune_modules.py
 
-This process can take several minutes (up to hours, depending on your system)
-and should present you with details on how to run the demos, once it is
-finished.
+This process can take several minutes (up to hours, depending on your system).
+There are several things worth noting:
+
+* We override the compiler definition with `CC=clang-release` to build the
+  external libraries. This results in the `CXX_FLAGS` to be set from
+  `config.opts.clang-release`, but just for the external libraries.
+* We need to source the `PATH.sh` again after setting up the external libraries
+  (since the virtualenv is now set up, which we need for the python bindings).
+* There should now be a `build-cland-debug` directory wihtin each dune module
+  containing the build files (see the respective `config.opts` for the
+  `BUILDDIR` variable), so take a look at `dune-hdd/build-clang-debug/examples`
+  for instance.
+* If you want to build the dune modules with another compiler variant you can
+  call
+
+      CC=gcc-release ./local/bin/build_dune_modules.py
+
+  which will build everything in a `build-gcc-release` subdirectory.
+* If you want to temporarily change the `CXX_FLAGS`, go to the build directory
+  and call `ccmake` and hit `t`, i.e.
+
+      cd dune-hdd/build-clang-debug
+      ccmake
+      t
+
+  Then go to `CMAKE_XCC_FLAGS`, hit return and change them accordingly. Finally
+  press `c`, `e` and `g` and you are good to go...
