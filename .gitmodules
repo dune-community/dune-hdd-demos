@@ -57,3 +57,6 @@
 [submodule "scripts"]
 	path = scripts
 	url = https://github.com/wwu-numerik/scripts.git
+[submodule "simdb"]
+	path = simdb
+	url = https://github.com/sdrave/simdb.git
