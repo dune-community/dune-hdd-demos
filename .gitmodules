@@ -1,6 +1,6 @@
 [submodule "dune-common"]
 	path = dune-common
-	url = http://git.dune-project.org/repositories/dune-common
+	url = http://gitlab.dune-project.org/core/dune-common
         ignore = dirty
 [submodule "dune-grid"]
 	path = dune-grid
@@ -8,39 +8,39 @@
         ignore = dirty
 [submodule "dune-geometry"]
 	path = dune-geometry
-	url = http://git.dune-project.org/repositories/dune-geometry
+	url = http://gitlab.dune-project.org/core/dune-geometry
         ignore = untracked
 [submodule "dune-fem"]
 	path = dune-fem
-	url = http://users.dune-project.org/repositories/projects/dune-fem-unofficial.git
+	url = https://gitlab.dune-project.org/felix.schindler/dune-fem.git
         ignore = untracked
 [submodule "dune-pdelab"]
 	path = dune-pdelab
-	url = http://users.dune-project.org/repositories/projects/dune-pdelab-unofficial.git
+	url = https://gitlab.dune-project.org/rene.milk/dune-pdelab.git
         ignore = untracked
 [submodule "dune-stuff"]
 	path = dune-stuff
 	url = https://github.com/ftalbrecht/dune-stuff.git
 [submodule "dune-grid-multiscale"]
 	path = dune-grid-multiscale
-	url = http://users.dune-project.org/repositories/projects/dune-grid-multiscale.git
+	url = https://github.com/dune-community/dune-grid-multiscale.git
 [submodule "dune-localfunctions"]
 	path = dune-localfunctions
-	url = http://git.dune-project.org/repositories/dune-localfunctions
+	url = http://gitlab.dune-project.org/core/dune-localfunctions
         ignore = untracked
 [submodule "dune-istl"]
 	path = dune-istl
-	url = http://git.dune-project.org/repositories/dune-istl
+	url = http://gitlab.dune-project.org/core/dune-istl
         ignore = untracked
 [submodule "local/bin"]
 	path = local/bin
-	url = http://users.dune-project.org/repositories/projects/dune-demos-bin.git
+	url = https://github.com/dune-community/local-bin.git
 [submodule "dune-gdt"]
 	path = dune-gdt
 	url = https://github.com/ftalbrecht/dune-gdt.git
 [submodule "dune-hdd"]
 	path = dune-hdd
-	url = http://users.dune-project.org/repositories/projects/dune-hdd.git
+	url = https://github.com/dune-community/dune-hdd.git
 [submodule "dune-pymor"]
 	path = dune-pymor
 	url = https://github.com/pymor/dune-pymor.git
@@ -49,11 +49,11 @@
 	url = https://github.com/ftalbrecht/pymor.git
 [submodule "dune-typetree"]
 	path = dune-typetree
-	url = http://git.dune-project.org/repositories/dune-typetree
+	url = http://gitlab.dune-project.org/pdelab/dune-typetree
         ignore = untracked
 [submodule "configs"]
 	path = configs
-	url = http://users.dune-project.org/repositories/projects/dune-config-opts.git
+	url = https://github.com/dune-community/config.opts.git
 [submodule "simdb"]
 	path = simdb
 	url = https://github.com/ftalbrecht/simdb.git
